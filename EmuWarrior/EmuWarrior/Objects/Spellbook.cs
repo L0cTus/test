@@ -30,57 +30,57 @@ namespace EmuWarrior.Objects
 
         public static readonly Spell Execute = new Spell("Execute", 950, false, true,
             isWanted:
-                () =>
-                    Helpers.CanCast("Execute") && Me.Rage >= 10 && Target.HealthPercent < 20
+                () => Target.Position.GetDistanceTo(Me.Position) <= EmuWarriorSettings.Values.MeleeAttackRange+1
+                    && Helpers.CanCast("Execute") && Me.Rage >= 10 && Target.HealthPercent < 20
                     && Helpers.GetStance() != Enums.WarriorStance.Defensive);
 
         public static readonly Spell MortalStrike = new Spell("Mortal Strike", 900, false, true,
             isWanted:
-                () =>
-                    Helpers.CanCast("Mortal Strike") && Me.Rage >= 20 && Helpers.GetStance() != Enums.WarriorStance.Defensive);
+                () => Target.Position.GetDistanceTo(Me.Position) <= EmuWarriorSettings.Values.MeleeAttackRange
+                    && Helpers.CanCast("Mortal Strike") && Me.Rage >= 20 && Helpers.GetStance() != Enums.WarriorStance.Defensive);
 
         public static readonly Spell Bloodthirst = new Spell("Bloodthirst", 900, false, true,
             isWanted:
-                () =>
-                    Helpers.CanCast("Bloodthirst") && Me.Rage >= 20 && Helpers.GetStance() != Enums.WarriorStance.Defensive);
+                () => Target.Position.GetDistanceTo(Me.Position) <= EmuWarriorSettings.Values.MeleeAttackRange
+                    && Helpers.CanCast("Bloodthirst") && Me.Rage >= 20 && Helpers.GetStance() != Enums.WarriorStance.Defensive);
 
         public static readonly Spell ShieldSlam = new Spell("Shield Slam", 900, false, true,
             isWanted:
-                () =>
-                    Helpers.CanCast("Shield Slam") && Me.Rage >= 20 && Helpers.GetStance() != Enums.WarriorStance.Berserker
+                () => Target.Position.GetDistanceTo(Me.Position) <= EmuWarriorSettings.Values.MeleeAttackRange
+                    && Helpers.CanCast("Shield Slam") && Me.Rage >= 20 && Helpers.GetStance() != Enums.WarriorStance.Berserker
                     && Helpers.HasSheild());
 
         public static readonly Spell Whirlwind = new Spell("Whirlwind", 850, false, true,
             isWanted:
-                () =>
-                    Helpers.CanCast("Whirlwind") && Me.Rage >= 25 && Helpers.GetStance() == Enums.WarriorStance.Berserker);
+                () => Target.Position.GetDistanceTo(Me.Position) <= EmuWarriorSettings.Values.MeleeAttackRange
+                    && Helpers.CanCast("Whirlwind") && Me.Rage >= 25 && Helpers.GetStance() == Enums.WarriorStance.Berserker);
 
         public static readonly Spell Overpower = new Spell("Overpower", 875, false, true,
             isWanted:
-                () =>
-                    Helpers.CanCast("Overpower") && Me.Rage >= 5 
+                () => Target.Position.GetDistanceTo(Me.Position) <= EmuWarriorSettings.Values.MeleeAttackRange
+                    && Helpers.CanCast("Overpower") && Me.Rage >= 5 
                     && ObjectManager.Instance.Player.CanOverpower 
                     && Helpers.GetStance() == Enums.WarriorStance.Battle);
 
         public static readonly Spell Rend = new Spell("Rend", 300, false, true,
             isWanted:
-                () =>
-                    Helpers.CanCast("Rend") && Me.Rage >= 10 && Helpers.GetStance() != Enums.WarriorStance.Berserker
+                () => Target.Position.GetDistanceTo(Me.Position) <= EmuWarriorSettings.Values.MeleeAttackRange 
+                    && Helpers.CanCast("Rend") && Me.Rage >= 10 && Helpers.GetStance() != Enums.WarriorStance.Berserker
                     && EmuWarriorSettings.Values.CastRend);
 
         //Only cast if we can't do anything else - or as a rage dump
         
         public static readonly Spell Cleave = new Spell("Cleave", 450, false, true,
              isWanted:
-                 () =>
-                     Helpers.CanCast("Cleave") && UnitInfo.Instance.NpcAttackers.Count > 2 
+                 () => Target.Position.GetDistanceTo(Me.Position) <= EmuWarriorSettings.Values.MeleeAttackRange
+                     && Helpers.CanCast("Cleave") && UnitInfo.Instance.NpcAttackers.Count > 2 
                      && ((Me.Rage >= 20 && !Helpers.CanCast("Mortal Strike")
                      && !Helpers.CanCast("Bloodthirst") && !Helpers.CanCast("Shield Slam")) || Me.Rage >= 45));
         
         public static readonly Spell HerioicStrike = new Spell("Heroic Strike", 400, false, true,
             isWanted:
-                () =>
-                    Helpers.CanCast("Heroic Strike") && UnitInfo.Instance.NpcAttackers.Count == 1
+                () => Target.Position.GetDistanceTo(Me.Position) <= EmuWarriorSettings.Values.MeleeAttackRange
+                    && Helpers.CanCast("Heroic Strike") && UnitInfo.Instance.NpcAttackers.Count == 1
                     && ((Me.Rage >= 15 && !Helpers.CanCast("Mortal Strike")
                     && !Helpers.CanCast("Bloodthirst") && !Helpers.CanCast("Shield Slam")) || Me.Rage >= 45));
 
@@ -108,12 +108,6 @@ namespace EmuWarrior.Objects
                     Helpers.CanCast("Retaliation") && (Me.HealthPercent <= 80 && UnitInfo.Instance.NpcAttackers.Count >= 2
                     || Me.HealthPercent <= 40 && Target.HealthPercent >= 50));
 
-        public static readonly Spell Attack = new Spell("Attack", Int32.MaxValue, false, true, true, false,
-            () => Helpers.CanCast("Attack"), customAction:
-                () =>
-                {
-                    ZzukBot.Game.Statics.Spell.Instance.Attack();
-                });
 
         public Spellbook()
         {
@@ -145,7 +139,7 @@ namespace EmuWarrior.Objects
                 spells.Add(property.GetValue(property) as Spell);
             }
 
-            spells = spells.OrderBy(s => s.Priority).ToList();
+            spells = spells.OrderByDescending(s => s.Priority).ToList();
         }
 
         private static WoWUnit Me

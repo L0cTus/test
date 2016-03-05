@@ -69,6 +69,7 @@ namespace EmuWarrior
                 }
                 else
                 {
+                    ZzukBot.Game.Statics.Spell.Instance.Attack();
 
                     var damageSpells = this.spellbook.GetDamageSpells();
 
@@ -76,6 +77,7 @@ namespace EmuWarrior
                     {
                         if (spell.IsWanted)
                         {
+                            CustomClasses.Instance.Current.CombatDistance = EmuWarriorSettings.Values.MeleeAttackRange;
                             spell.Cast();
                             spellbook.UpdateLastSpell(spell);
                             break;
@@ -98,6 +100,9 @@ namespace EmuWarrior
             {
                 WoWUnit targetUnit = ObjectManager.Instance.Target;
                 if (targetUnit == null) return;
+
+                CustomClasses.Instance.Current.CombatDistance = EmuWarriorSettings.Values.MeleeAttackRange;
+                ZzukBot.Game.Statics.Spell.Instance.Attack();
 
                 if (EmuWarriorSettings.Values.PreferredStance != (int) Helpers.GetStance())
                 {

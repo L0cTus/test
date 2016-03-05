@@ -35,7 +35,7 @@ namespace EmuWarrior.Data
 
         public static bool CanCast(string parSpell)
         {
-            return ZzukBot.Game.Statics.Spell.Instance.IsSpellReady(parSpell) && ZzukBot.Game.Statics.Spell.Instance.GetSpellRank(parSpell) != 0;
+            return Spell.Instance.IsSpellReady(parSpell) && Spell.Instance.GetSpellRank(parSpell) != 0;
         }
 
         public static bool CanWand()
