@@ -65,7 +65,8 @@ namespace EmuWarrior.Objects
         public static readonly Spell Rend = new Spell("Rend", 300, false, true,
             isWanted:
                 () => Target.Position.GetDistanceTo(Me.Position) <= EmuWarriorSettings.Values.MeleeAttackRange 
-                    && Helpers.CanCast("Rend") && Me.Rage >= 10 && Helpers.GetStance() != Enums.WarriorStance.Berserker
+                    && Helpers.CanCast("Rend") && Me.Rage >= 10 && !Target.GotDebuff("Rend")
+                    && Helpers.GetStance() != Enums.WarriorStance.Berserker
                     && EmuWarriorSettings.Values.CastRend);
 
         //Only cast if we can't do anything else - or as a rage dump
