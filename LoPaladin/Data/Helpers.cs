@@ -1,13 +1,13 @@
 ﻿using ZzukBot.Game.Statics;
 using ZzukBot.Objects;
 
-namespace EmuWarrior.Data
+namespace LoPaladin.Data
 {
     internal static class Helpers
     {
         public static void PrintToChat(string parMessage)
         {
-            Lua.Instance.Execute("DEFAULT_CHAT_FRAME:AddMessage('EmuWarrior: " + parMessage + "')");
+            Lua.Instance.Execute("DEFAULT_CHAT_FRAME:AddMessage('ProtPalla: " + parMessage + "')");
         }
 
         public static void TryCast(string parSpell, int parWait = 10)
@@ -41,25 +41,6 @@ namespace EmuWarrior.Data
         public static bool CanWand()
         {
             return ObjectManager.Instance.Player.IsWandEquipped();
-        }
-
-        public static Enums.WarriorStance GetStance()
-        {
-            if (Lua.Instance.GetText("icon, name, active = GetShapeshiftFormInfo(1);", "active") == "1")
-                return Enums.WarriorStance.Battle;
-            if (Lua.Instance.GetText("icon, name, active = GetShapeshiftFormInfo(2);", "active") == "1")
-                return Enums.WarriorStance.Defensive;
-
-            return Enums.WarriorStance.Berserker;
-            //PrintToChat(text);
-            /*
-            for (int i = 1; i < 4; i++)
-            {
-                if (text.Equals(Statics.StanceName[i]))
-                    return (Enums.WarriorStance) i;
-            }
-            return Enums.WarriorStance.Battle;*/
-            //return (Enums.WarriorStance) (int.Parse(Lua.Instance.GetText("icon, name, active = GetShapeshiftFormInfo(true);", "active")));
         }
 
         public static bool HasSheild()

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EmuWarrior.Data
+namespace LoPaladin.Data
 {
     internal static class Enums
     {
@@ -13,13 +13,6 @@ namespace EmuWarrior.Data
             Rage,
             Energy,
             Mana
-        }
-
-        public enum WarriorStance
-        {
-            Battle = 1,
-            Defensive,
-            Berserker
         }
     }
 }

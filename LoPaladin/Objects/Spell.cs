@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using EmuWarrior.Data;
+using LoPaladin.Data;
 using ZzukBot.Game.Statics;
 
-namespace EmuWarrior.Objects
+namespace LoPaladin.Objects
 {
     internal class Spell
     {
@@ -71,7 +71,21 @@ namespace EmuWarrior.Objects
         {
             if (customAction == null)
             {
-                Helpers.TryCast(name);
+                if (IsBuff)
+                {
+                    Helpers.TryBuff(name);
+                }
+                else
+                {
+                    if (IsInstant)
+                    {
+                        Helpers.TryCast(name, 100);
+                    }
+                    else
+                    {
+                        Helpers.TryCast(name);
+                    }
+                }
             }
             else
             {

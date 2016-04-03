@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EmuWarrior.Objects
+namespace LoPaladin.Objects
 {
     internal class CacheItem
     {

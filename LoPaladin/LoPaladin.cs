@@ -2,32 +2,27 @@
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Windows.Forms;
-using EmuWarrior.Data;
-using EmuWarrior.Gui;
-using EmuWarrior.Objects;
-using EmuWarrior.Settings;
+using LoPaladin.Data;
+using LoPaladin.Gui;
+using LoPaladin.Objects;
+using LoPaladin.Settings;
 using ZzukBot.ExtensionFramework;
 using ZzukBot.ExtensionFramework.Classes;
 using ZzukBot.Game.Statics;
 using ZzukBot.Objects;
 using Enums = ZzukBot.Constants.Enums;
 
-// EmuWarrior - 99% Credits to z0mg
-// Would like to give a huge thanks to z0mg (Rob)
-// I used his doctorDeath CC as a template
-// very easy to follow and adapt - Thanks Heaps!
-
-namespace EmuWarrior
+namespace LoPaladin
 {
     [Export(typeof(CustomClass))]
-    public class EmuWarrior : CustomClass
+    public class LoPaladin : CustomClass
     {
         private Form CCGui = new CCGui();
         private Spellbook spellbook;
         /// <summary>
         /// The WoW class the CustomClass is designed for
         /// </summary>
-        public override Enums.ClassId Class => Enums.ClassId.Warrior;
+        public override Enums.ClassId Class => Enums.ClassId.Paladin;
 
         /// <summary>
         /// Should be called when the CC is loaded
@@ -36,7 +31,7 @@ namespace EmuWarrior
         public override bool Load()
         {
             this.spellbook = new Spellbook();
-            EmuWarriorSettings.Values.Load();
+            LoPaladinSettings.Values.Load();
             return true;
         }
 
@@ -57,32 +52,20 @@ namespace EmuWarrior
                 WoWUnit targetUnit = ObjectManager.Instance.Target;
                 if (targetUnit == null) return;
 
-                //Hack on RangedAttack :(
-                if (EmuWarriorSettings.Values.UseRangedToPull &&
-                    (Inventory.Instance.GetEquippedItem(Enums.EquipSlot.Ranged).Name ==
-                     EmuWarriorSettings.Values.RangedAmmo ||
-                     Inventory.Instance.GetEquippedItem(0).Name == EmuWarriorSettings.Values.RangedAmmo))
-                {
-                    CustomClasses.Instance.Current.CombatDistance = EmuWarriorSettings.Values.RangedAttackRange;
-                    Helpers.TryCast(EmuWarriorSettings.Values.RangedPullSpell, 3000);
-                    return;
-                }
-                else
-                {
-                    ZzukBot.Game.Statics.Spell.Instance.Attack();
+                CustomClasses.Instance.Current.CombatDistance = LoPaladinSettings.Values.MeleeAttackRange;
+                ZzukBot.Game.Statics.Spell.Instance.Attack();
 
-                    var damageSpells = this.spellbook.GetDamageSpells();
+                var damageSpells = this.spellbook.GetDamageSpells();
 
-                    foreach (var spell in damageSpells)
+                foreach (var spell in damageSpells)
+                {
+                    if (spell.IsWanted)
                     {
-                        if (spell.IsWanted)
-                        {
-                            CustomClasses.Instance.Current.CombatDistance = EmuWarriorSettings.Values.MeleeAttackRange;
-                            spell.Cast();
-                            spellbook.UpdateLastSpell(spell);
-                            break;
-                        }
+                        spell.Cast();
+                        spellbook.UpdateLastSpell(spell);
+                        break;
                     }
+                    
                 }
             }
             catch (Exception e)
@@ -101,13 +84,9 @@ namespace EmuWarrior
                 WoWUnit targetUnit = ObjectManager.Instance.Target;
                 if (targetUnit == null) return;
 
-                CustomClasses.Instance.Current.CombatDistance = EmuWarriorSettings.Values.MeleeAttackRange;
+                
                 ZzukBot.Game.Statics.Spell.Instance.Attack();
 
-                if (EmuWarriorSettings.Values.PreferredStance != (int) Helpers.GetStance())
-                {
-                    Helpers.TryCast(Statics.StanceName[EmuWarriorSettings.Values.PreferredStance]);
-                }
 
                 var damageSpells = this.spellbook.GetDamageSpells();
 
@@ -137,14 +116,14 @@ namespace EmuWarrior
             {
                 if (!ObjectManager.Instance.Player.IsDrinking)
                 {
-                    ObjectManager.Instance.Items.FirstOrDefault(i => i.Name == EmuWarriorSettings.Values.DrinkName).Use();
-                    ZzukBot.Helpers.Wait.For("DrinkWarrior", 500);
+                    ObjectManager.Instance.Items.FirstOrDefault(i => i.Name == LoPaladinSettings.Values.DrinkName).Use();
+                    ZzukBot.Helpers.Wait.For("DrinkPaladin", 500);
                 }
                 if (!ObjectManager.Instance.Player.IsEating)
                 {
-                    ObjectManager.Instance.Items.FirstOrDefault(i => i.Name == EmuWarriorSettings.Values.FoodName)
+                    ObjectManager.Instance.Items.FirstOrDefault(i => i.Name == LoPaladinSettings.Values.FoodName)
                         .Use();
-                    ZzukBot.Helpers.Wait.For("EatWarrior", 500);
+                    ZzukBot.Helpers.Wait.For("EatPaladin", 500);
                 }
             }
             catch
@@ -161,22 +140,20 @@ namespace EmuWarrior
         /// </returns>
         public override bool OnBuff()
         {
+            
             try
             {
-                //If we want to charge - go back to battle stance
-                if(!EmuWarriorSettings.Values.UseRangedToPull 
-                    && Helpers.GetStance() != Data.Enums.WarriorStance.Battle 
-                    && Helpers.CanCast("Charge"))
-                    Helpers.TryCast(Statics.StanceName[(int)Data.Enums.WarriorStance.Battle]);
-
-                var buffs = this.spellbook.GetBuffSpells();
-
-                foreach (var spell in buffs)
+                if (!ObjectManager.Instance.Player.InGhostForm && !ObjectManager.Instance.Player.IsDead)
                 {
-                    if (spell.IsWanted)
+                    var buffs = this.spellbook.GetBuffSpells();
+
+                    foreach (var spell in buffs)
                     {
-                        spell.Cast();
-                        return false;
+                        if (spell.IsWanted)
+                        {
+                            spell.Cast();
+                            return false;
+                        }
                     }
                 }
             }
@@ -185,6 +162,7 @@ namespace EmuWarrior
 
             }
             return true;
+        
         }
 
         /// <summary>
@@ -201,12 +179,12 @@ namespace EmuWarrior
         /// <summary>
         /// The name of the CC
         /// </summary>
-        public override string Name => Data.Statics.SettingsName;
+        public override string Name => "LoPaladin";
 
         /// <summary>
         /// The author of the CC
         /// </summary>
-        public override string Author => "z0mg";
+        public override string Author => "Loctus";
 
         /// <summary>
         /// The version of the CC
@@ -216,7 +194,7 @@ namespace EmuWarrior
         /// <summary>
         /// The current combat distance
         /// </summary>
-        public override float CombatDistance => EmuWarriorSettings.Values.MeleeAttackRange;
+        public override float CombatDistance => LoPaladinSettings.Values.MeleeAttackRange;
 
     }
 }
